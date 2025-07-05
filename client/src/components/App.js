@@ -8,7 +8,8 @@ import Cafes from "../Pages/Cafes";
 
 function App() {
   const [user, setUser] = useState(null);
-  const [cafes, setCafes ] = useState([]);
+  const [cafes, setCafes] = useState([]);
+  const [coffees, setCoffees] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -16,6 +17,12 @@ function App() {
     fetch("/cafes")
     .then((response) => response.json())
     .then((data) => setCafes(data));
+  }, []);
+
+  useEffect(() => {
+    fetch("/coffees")
+    .then((response) => response.json())
+    .then((data) => setCoffees(data));
   }, []);
 
   useEffect(() => {
@@ -116,8 +123,8 @@ function App() {
     <CssVarsProvider>
       <NavBar user={user} setUser={setUser} />
       <Routes>
-        <Route path="/user-coffees" element={<UserCoffees />} />
-        <Route path="/cafes" element={<Cafes cafes={cafes} setCafes={setCafes}/>} />
+        <Route path="/user-coffees" element={<UserCoffees coffees={coffees} setCoffees={setCoffees} />} />
+        <Route path="/cafes" element={<Cafes cafes={cafes} setCafes={setCafes} coffees={coffees} setCoffees={setCoffees} />} />
       </Routes>
     </CssVarsProvider>
   );

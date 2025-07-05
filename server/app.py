@@ -270,7 +270,7 @@ class Coffees(Resource):
         if not data.get("name") or not data.get("cafe_id"):
             return {"error": "Name and cafe_id are required"}, 422
         
-        cafe = Cafe.query.get(data.get("cafe_id"))
+        cafe = db.session.get(Cafe, data.get("cafe_id"))
         if not cafe:
             return {"error": "Cafe not found"}, 404
         
