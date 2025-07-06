@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -13,20 +14,19 @@ import {
   Stack,
   useColorScheme,
 } from '@mui/joy';
+
 import {
   Coffee,
   Sun,
   Moon,
-  Search,
-  Bell,
   User,
-  Settings,
   LogOut,
   Star,
-  PlusCircle,
-  Home,
-  TrendingUp,
 } from 'lucide-react';
+
+// Import MUI icons for notes and cafes
+import ArticleIcon from '@mui/icons-material/Article';
+import LocalCafeIcon from '@mui/icons-material/LocalCafe';
 
 function ModeToggle() {
   const { mode, setMode } = useColorScheme();
@@ -60,7 +60,7 @@ function ModeToggle() {
 }
 
 function NavBar({ user, setUser, onLogout }) {
-  const [searchValue, setSearchValue] = useState('');
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     if (onLogout) {
@@ -70,9 +70,8 @@ function NavBar({ user, setUser, onLogout }) {
   };
 
   const navigationItems = [
-    { label: 'My Coffee Notes', icon: <Home size={18} />, path: '/user-coffees' },
-    { label: 'Cafes', icon: <TrendingUp size={18} />, path: '/cafes' },
-    { label: 'My Reviews', icon: <Star size={18} />, path: '/my-reviews' },
+    { label: 'My Coffee Notes', icon: <ArticleIcon fontSize="small" />, path: '/user-coffees' },
+    { label: 'Cafes', icon: <LocalCafeIcon fontSize="small" />, path: '/cafes' },
   ];
 
   return (
@@ -86,7 +85,10 @@ function NavBar({ user, setUser, onLogout }) {
         borderBottom: '1px solid',
         borderColor: 'divider',
         backdropFilter: 'blur(8px)',
-        backgroundColor: 'rgba(var(--joy-palette-background-surface-channel) / 0.8)',
+        backgroundColor: (theme) =>
+          theme.palette.mode === 'dark'
+            ? theme.palette.neutral[900]
+            : theme.palette.background.surface,
       }}
     >
       <Box
@@ -142,6 +144,7 @@ function NavBar({ user, setUser, onLogout }) {
               variant="plain"
               size="sm"
               startDecorator={item.icon}
+              onClick={() => navigate(item.path)}
               sx={{
                 minHeight: 40,
                 color: 'text.secondary',
@@ -156,123 +159,8 @@ function NavBar({ user, setUser, onLogout }) {
           ))}
         </Stack>
 
-        {/* Search Bar - Hidden on mobile */}
-        <Box
-          sx={{
-            display: { xs: 'none', md: 'flex' },
-            alignItems: 'center',
-            position: 'relative',
-            maxWidth: 300,
-            flex: 1,
-            mx: 3,
-          }}
-        >
-          <Box
-            sx={{
-              position: 'relative',
-              width: '100%',
-              '& input': {
-                pl: 5,
-                pr: 2,
-                py: 1,
-                borderRadius: 'md',
-                border: '1px solid',
-                borderColor: 'neutral.300',
-                bgcolor: 'background.level1',
-                fontSize: 'sm',
-                '&:focus': {
-                  outline: 'none',
-                  borderColor: 'primary.500',
-                  boxShadow: '0 0 0 2px rgba(var(--joy-palette-primary-500-channel) / 0.2)',
-                },
-                '&::placeholder': {
-                  color: 'text.tertiary',
-                },
-              },
-            }}
-          >
-            <Search
-              size={16}
-              style={{
-                position: 'absolute',
-                left: 12,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                color: 'var(--joy-palette-text-tertiary)',
-                zIndex: 1,
-              }}
-            />
-            <input
-              type="text"
-              placeholder="Search coffees, brands, reviews..."
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
-              style={{
-                width: '100%',
-                background: 'transparent',
-                border: 'none',
-                outline: 'none',
-              }}
-            />
-          </Box>
-        </Box>
-
         {/* Right Side Actions */}
         <Stack direction="row" spacing={0.5} alignItems="center">
-          {/* Add Review Button */}
-          <Button
-            variant="soft"
-            size="sm"
-            startDecorator={<PlusCircle size={16} />}
-            sx={{
-              bgcolor: 'primary.100',
-              color: 'primary.700',
-              '&:hover': {
-                bgcolor: 'primary.200',
-              },
-              display: { xs: 'none', sm: 'flex' },
-            }}
-          >
-            Add Review
-          </Button>
-
-          {/* Search Icon - Mobile */}
-          <IconButton
-            variant="plain"
-            size="sm"
-            sx={{
-              display: { xs: 'flex', md: 'none' },
-              color: 'text.secondary',
-            }}
-          >
-            <Search size={18} />
-          </IconButton>
-
-          {/* Notifications */}
-          <IconButton
-            variant="plain"
-            size="sm"
-            sx={{
-              color: 'text.secondary',
-              position: 'relative',
-            }}
-          >
-            <Bell size={18} />
-            {/* Notification badge */}
-            <Box
-              sx={{
-                position: 'absolute',
-                top: 4,
-                right: 4,
-                width: 8,
-                height: 8,
-                bgcolor: 'danger.500',
-                borderRadius: '50%',
-                border: '2px solid',
-                borderColor: 'background.surface',
-              }}
-            />
-          </IconButton>
 
           {/* Theme Toggle */}
           <ModeToggle />
@@ -307,30 +195,23 @@ function NavBar({ user, setUser, onLogout }) {
                 boxShadow: 'lg',
                 border: '1px solid',
                 borderColor: 'divider',
+                bgcolor: 'background.surface',
               }}
             >
               <MenuItem>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                  <Typography level="body-sm" sx={{ fontWeight: 'md' }}>
+                  <Typography level="body-sm" sx={{ fontWeight: 'md', color: 'text.primary' }}>
                     {user?.username || 'User'}
                   </Typography>
                   <Typography level="body-xs" sx={{ color: 'text.tertiary' }}>
-                    {user?.email || 'user@example.com'}
+                    {user?.email || ''}
                   </Typography>
                 </Box>
               </MenuItem>
               <Divider />
-              <MenuItem>
-                <User size={16} />
-                Profile
-              </MenuItem>
-              <MenuItem>
+              <MenuItem sx={{ color: 'text.primary' }}>
                 <Star size={16} />
-                My Reviews
-              </MenuItem>
-              <MenuItem>
-                <Settings size={16} />
-                Settings
+                My Notes
               </MenuItem>
               <Divider />
               <MenuItem onClick={handleLogout} sx={{ color: 'danger.500' }}>
@@ -373,7 +254,9 @@ function NavBar({ user, setUser, onLogout }) {
               }}
             >
               {item.icon}
-              <Typography level="body-xs">{item.label}</Typography>
+              <Typography level="body-xs" sx={{ color: 'inherit' }}>
+                {item.label}
+              </Typography>
             </Button>
           ))}
         </Stack>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import { CssVarsProvider } from '@mui/joy/styles';
+import theme from "../components/theme";
 import Login from "../Pages/Login";
 import NavBar from "../components/NavBar";
 import UserCoffees from "../Pages/UserCoffees";
@@ -120,10 +121,10 @@ function App() {
   }
 
   return (
-    <CssVarsProvider>
+    <CssVarsProvider theme={theme}>
       <NavBar user={user} setUser={setUser} />
       <Routes>
-        <Route path="/user-coffees" element={<UserCoffees coffees={coffees} setCoffees={setCoffees} />} />
+        <Route path="/user-coffees" element={<UserCoffees coffees={coffees} setCoffees={setCoffees} user={user} setUser={setUser} />} />
         <Route path="/cafes" element={<Cafes cafes={cafes} setCafes={setCafes} coffees={coffees} setCoffees={setCoffees} />} />
       </Routes>
     </CssVarsProvider>

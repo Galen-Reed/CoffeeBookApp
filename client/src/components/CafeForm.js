@@ -1,7 +1,7 @@
 import React from "react";
 import { useFormik } from "formik";
 import * as yup from "yup";
-import { Box, Button, Input, FormControl, FormLabel, FormHelperText } from "@mui/joy";
+import { Box, Button, Input, FormControl, FormLabel, FormHelperText, Typography } from "@mui/joy";
 
 const formSchema = yup.object().shape({
   name: yup
@@ -27,10 +27,8 @@ function CafeForm({ setCafes }) {
         body: JSON.stringify(values),
       })
         .then((response) => {
-          console.log("Response status: ", response.status);
           if (response.ok) {
             response.json().then((newCafe) => {
-              console.log("New Cafe:", newCafe);
               setCafes((prev) => [...prev, newCafe]);
               formik.resetForm();
             });
@@ -45,11 +43,25 @@ function CafeForm({ setCafes }) {
   });
 
   return (
-    <Box sx={{ maxWidth: 400, mx: "auto", p: 3 }}>
-      <h2>Add New Cafe</h2>
+    <Box
+      sx={{
+        maxWidth: 400,
+        mx: "auto",
+        p: 3,
+        bgcolor: "background.surface",
+        borderRadius: 2,
+        boxShadow: 'md',
+      }}
+    >
+      <Typography
+        level="h3"
+        component="h2"
+        sx={{ mb: 3, color: "text.primary", fontWeight: 'lg' }}
+      >
+        Add New Cafe
+      </Typography>
       <form onSubmit={formik.handleSubmit}>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          {/* Cafe Name Field */}
           <FormControl error={formik.touched.name && Boolean(formik.errors.name)}>
             <FormLabel>Cafe Name</FormLabel>
             <Input
@@ -58,13 +70,14 @@ function CafeForm({ setCafes }) {
               value={formik.values.name}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
+              variant="outlined"
+              size="md"
             />
             {formik.touched.name && formik.errors.name && (
               <FormHelperText>{formik.errors.name}</FormHelperText>
             )}
           </FormControl>
 
-          {/* Location Field */}
           <FormControl error={formik.touched.location && Boolean(formik.errors.location)}>
             <FormLabel>Location</FormLabel>
             <Input
@@ -73,6 +86,8 @@ function CafeForm({ setCafes }) {
               value={formik.values.location}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
+              variant="outlined"
+              size="md"
             />
             {formik.touched.location && formik.errors.location && (
               <FormHelperText>{formik.errors.location}</FormHelperText>
@@ -84,6 +99,7 @@ function CafeForm({ setCafes }) {
             variant="solid"
             color="primary"
             disabled={formik.isSubmitting}
+            sx={{ mt: 1 }}
           >
             Add Cafe
           </Button>
