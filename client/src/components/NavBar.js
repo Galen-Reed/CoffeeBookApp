@@ -70,7 +70,7 @@ function NavBar({ user, setUser, onLogout }) {
   };
 
   const navigationItems = [
-    { label: 'My Coffee Notes', icon: <ArticleIcon fontSize="small" />, path: '/user-coffees' },
+    { label: 'My Coffee Notes', icon: <ArticleIcon fontSize="small" />, path: '/' },
     { label: 'Cafes', icon: <LocalCafeIcon fontSize="small" />, path: '/cafes' },
   ];
 

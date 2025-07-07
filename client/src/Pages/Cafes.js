@@ -9,7 +9,7 @@ import {
 import { ChevronDown, ChevronUp, Plus } from "lucide-react";
 import CafeForm from "../components/CafeForm";
 import CoffeeForm from "../components/CoffeeForm";
-import CoffeeCard from "../components/CoffeeCard";  // Import CoffeeCard
+import CoffeeCard from "../components/CoffeeCard";
 
 const Collapse = ({ in: isOpen, children }) => (
   <Box
@@ -23,7 +23,7 @@ const Collapse = ({ in: isOpen, children }) => (
   </Box>
 );
 
-const Cafes = ({ cafes, setCafes }) => {
+const Cafes = ({ cafes, setCafes, coffees, setCoffees }) => {
   const [expandedCafes, setExpandedCafes] = useState(new Set());
   const [showAddCoffeeForm, setShowAddCoffeeForm] = useState(new Set());
 
@@ -48,6 +48,38 @@ const Cafes = ({ cafes, setCafes }) => {
       )
     );
     toggleAddCoffeeForm(cafeId);
+  };
+
+  const deleteCoffee = async (coffeeId) => {
+    try {
+      const response = await fetch(`/coffees/${coffeeId}`, {
+        method: "DELETE",
+        credentials: "same-origin",
+      });
+
+      if (response.ok) {
+        // Update local state by removing the coffee from the cafe
+        setCafes((prevCafes) =>
+          prevCafes.map((cafe) => ({
+            ...cafe,
+            coffees: cafe.coffees?.filter((coffee) => coffee.id !== coffeeId) || [],
+          }))
+        );
+
+        // Also update the global coffees state if it exists
+        if (setCoffees) {
+          setCoffees((prevCoffees) =>
+            prevCoffees.filter((coffee) => coffee.id !== coffeeId)
+          );
+        }
+      } else {
+        console.error("Failed to delete coffee");
+        alert("Failed to delete coffee. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error deleting coffee:", error);
+      alert("Error deleting coffee. Please try again.");
+    }
   };
 
   return (
@@ -181,7 +213,11 @@ const Cafes = ({ cafes, setCafes }) => {
                       }}
                     >
                       {cafe.coffees.map((coffee) => (
-                        <CoffeeCard key={coffee.id} coffee={coffee} />
+                        <CoffeeCard 
+                          key={coffee.id} 
+                          coffee={coffee} 
+                          onDelete={deleteCoffee}
+                        />
                       ))}
                     </Box>
                   ) : (

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { CssVarsProvider } from '@mui/joy/styles';
 import theme from "../components/theme";
 import Login from "../Pages/Login";
@@ -13,6 +13,8 @@ function App() {
   const [coffees, setCoffees] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch("/cafes")
@@ -26,18 +28,58 @@ function App() {
     .then((data) => setCoffees(data));
   }, []);
 
+  // Handle OAuth callback
   useEffect(() => {
-    fetch("/check_session", {
-      method: "GET",
-      credentials: "same-origin",
-    }).then((r) => {
-      if (r.ok) {
-        r.json().then((userData) => {
-          setUser(userData);
-        });
+    const urlParams = new URLSearchParams(location.search);
+    const authStatus = urlParams.get('auth');
+    const errorMessage = urlParams.get('message');
+    const isNewUser = urlParams.get('new_user');
+
+    if (authStatus === 'success') {
+      // OAuth was successful, check session
+      fetch("/check_session", {
+        method: "GET",
+        credentials: "same-origin",
+      }).then((r) => {
+        if (r.ok) {
+          r.json().then((userData) => {
+            setUser(userData);
+            // Clear URL parameters
+            navigate('/', { replace: true });
+            // Optionally show success message
+            if (isNewUser) {
+              console.log('Welcome! Your account has been created.');
+            } else {
+              console.log('Welcome back!');
+            }
+          });
+        }
+      });
+    } else if (authStatus === 'error') {
+      // OAuth failed
+      let errorText = 'Authentication failed';
+      if (errorMessage === 'username_conflict') {
+        errorText = 'Username already exists with a different authentication method';
+      } else if (errorMessage === 'oauth_failed') {
+        errorText = 'GitHub authentication failed. Please try again.';
       }
-    });
-  }, []);
+      setError(errorText);
+      // Clear URL parameters
+      navigate('/', { replace: true });
+    } else {
+      // Normal session check
+      fetch("/check_session", {
+        method: "GET",
+        credentials: "same-origin",
+      }).then((r) => {
+        if (r.ok) {
+          r.json().then((userData) => {
+            setUser(userData);
+          });
+        }
+      });
+    }
+  }, [location.search, navigate]);
 
   const handleLogin = (formData) => {
     setLoading(true);
@@ -55,7 +97,9 @@ function App() {
       if (r.ok) {
         return r.json();
       } else {
-        throw new Error('Login failed');
+        return r.json().then(data => {
+          throw new Error(data.error || 'Login failed');
+        });
       }
     })
     .then((userData) => {
@@ -84,7 +128,9 @@ function App() {
       if (r.ok) {
         return r.json();
       } else {
-        throw new Error('Signup failed');
+        return r.json().then(data => {
+          throw new Error(data.error || 'Signup failed');
+        });
       }
     })
     .then((userData) => {
@@ -98,7 +144,29 @@ function App() {
   };
 
   const handleGitHubAuth = () => {
-    window.location.href = "/auth/github";
+    setLoading(true);
+    setError('');
+    
+    // First get the authorization URL from your backend
+    fetch("/auth/github", {
+      method: "GET",
+      credentials: "same-origin",
+    })
+    .then((r) => {
+      if (r.ok) {
+        return r.json();
+      } else {
+        throw new Error('Failed to get GitHub authorization URL');
+      }
+    })
+    .then((data) => {
+      // Redirect to GitHub OAuth
+      window.location.href = data.authorization_url;
+    })
+    .catch((err) => {
+      setError(err.message);
+      setLoading(false);
+    });
   };
 
   const handleClearError = () => {
@@ -124,7 +192,7 @@ function App() {
     <CssVarsProvider theme={theme}>
       <NavBar user={user} setUser={setUser} />
       <Routes>
-        <Route path="/user-coffees" element={<UserCoffees coffees={coffees} setCoffees={setCoffees} user={user} setUser={setUser} />} />
+        <Route path="/" element={<UserCoffees coffees={coffees} setCoffees={setCoffees} user={user} setUser={setUser} />} />
         <Route path="/cafes" element={<Cafes cafes={cafes} setCafes={setCafes} coffees={coffees} setCoffees={setCoffees} />} />
       </Routes>
     </CssVarsProvider>

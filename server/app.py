@@ -19,6 +19,7 @@ coffee_schema = CoffeeSchema()
 coffees_schema = CoffeeSchema(many=True)
 cafe_schema = CafeSchema()
 cafes_schema = CafeSchema(many=True)
+
 # Views go here!
 
 class Signup(Resource):
@@ -76,69 +77,69 @@ class Logout(Resource):
             return {'message': '204: No Content'}, 204
         else:
             return {'message': '401: Not authorized'}, 401
-        
+
+# Fixed GitHub OAuth implementation
 class GitHubAuth(Resource):
     def get(self):
-        """Initiate GitHub OAuth login"""
-        redirect_uri = url_for('githubcallback', _external=True)
-        authorization_url = github.authorize_redirect(redirect_uri)
-        return make_response(authorization_url)
-
-class GitHubCallback(Resource):
-    def get(self):
-        """Handle GitHub OAuth callback"""
+        """Get GitHub OAuth authorization URL"""
         try:
-            token = github.authorize_access_token()
-            
-            # Get user info from GitHub
-            resp = github.get('user', token=token)
-            github_user = resp.json()
-            
-            # Get user's email (might need separate API call)
-            email_resp = github.get('user/emails', token=token)
-            emails = email_resp.json()
-            primary_email = next((email['email'] for email in emails if email['primary']), None)
-            
-            # Check if user already exists by GitHub ID
-            user = User.find_by_github_id(github_user['id'])
-            
-            if user:
-                # Existing OAuth user - just log them in
-                session['user_id'] = user.id
-                return {
-                    "message": "Login successful",
-                    "user": user.to_dict(),
-                    "redirect": "/dashboard"
-                }, 200
-            else:
-                # Check if user exists by username (in case they want to link accounts)
-                existing_user = User.query.filter_by(username=github_user['login']).first()
-                
-                if existing_user and not existing_user.is_oauth_user:
-                    # Username conflict with non-OAuth user
-                    return {"error": "Username already exists with different auth method"}, 409
-                
-                # Create new OAuth user
-                new_user = User.create_oauth_user({
-                    'login': github_user['login'],
-                    'id': github_user['id'],
-                    'email': primary_email,
-                    'avatar_url': github_user.get('avatar_url')
-                })
-                
-                db.session.add(new_user)
-                db.session.commit()
-                
-                session['user_id'] = new_user.id
-                return {
-                    "message": "Account created and logged in",
-                    "user": new_user.to_dict(),
-                    "redirect": "/dashboard"
-                }, 201
-                
+            redirect_uri = url_for('githubcallback', _external=True)
+            # Don't try to return a redirect response - return the URL instead
+            authorization_url = github.create_authorization_url(redirect_uri)
+            return {"authorization_url": authorization_url}, 200
         except Exception as e:
-            print(f"OAuth error: {e}")
-            return {"error": "OAuth authentication failed"}, 400
+            print(f"GitHub auth error: {e}")
+            return {"error": "Failed to create authorization URL"}, 500
+
+# This should be a regular Flask route, not a Resource
+@app.route('/auth/github/callback')
+def github_callback():
+    """Handle GitHub OAuth callback"""
+    try:
+        token = github.authorize_access_token()
+        
+        # Get user info from GitHub
+        resp = github.get('user', token=token)
+        github_user = resp.json()
+        
+        # Get user's email (might need separate API call)
+        email_resp = github.get('user/emails', token=token)
+        emails = email_resp.json()
+        primary_email = next((email['email'] for email in emails if email['primary']), None)
+        
+        # Check if user already exists by GitHub ID
+        user = User.find_by_github_id(github_user['id'])
+        
+        if user:
+            # Existing OAuth user - just log them in
+            session['user_id'] = user.id
+            # Redirect to frontend with success parameter
+            return redirect('/?auth=success')
+        else:
+            # Check if user exists by username (in case they want to link accounts)
+            existing_user = User.query.filter_by(username=github_user['login']).first()
+            
+            if existing_user and not existing_user.is_oauth_user:
+                # Username conflict with non-OAuth user
+                return redirect('/?auth=error&message=username_conflict')
+            
+            # Create new OAuth user
+            new_user = User.create_oauth_user({
+                'login': github_user['login'],
+                'id': github_user['id'],
+                'email': primary_email,
+                'avatar_url': github_user.get('avatar_url')
+            })
+            
+            db.session.add(new_user)
+            db.session.commit()
+            
+            session['user_id'] = new_user.id
+            return redirect('/?auth=success&new_user=true')
+            
+    except Exception as e:
+        print(f"OAuth error: {e}")
+        return redirect('/?auth=error&message=oauth_failed')
 
 class GitHubLink(Resource):
     def post(self):
@@ -319,7 +320,7 @@ class CoffeesById(Resource):
         if "user_id" not in session:
             return {"error": "Not logged in"}, 401
         
-        coffee = Coffee.query.get(id)
+        coffee = db.session.get(Coffee, id)
         if not coffee:
             return {"error": "Coffee not found"}, 404
         
@@ -405,7 +406,6 @@ api.add_resource(CheckSession, '/check_session', endpoint='check_session')
 api.add_resource(Login, '/login', endpoint='login')
 api.add_resource(Logout, '/logout', endpoint='logout')
 api.add_resource(GitHubAuth, '/auth/github')
-api.add_resource(GitHubCallback, '/auth/github/callback')
 api.add_resource(GitHubLink, '/auth/github/link')
 api.add_resource(OAuthStatus, '/auth/status')
 api.add_resource(Notes, '/notes', endpoint="notes")

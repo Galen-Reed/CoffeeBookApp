@@ -1,8 +1,15 @@
 // CoffeeCard.js
 import React from "react";
-import { Card, Typography, Box } from "@mui/joy";
+import { Card, Typography, Box, IconButton } from "@mui/joy";
+import { Trash2 } from "lucide-react";
 
-function CoffeeCard({ coffee }) {
+function CoffeeCard({ coffee, onDelete }) {
+  const handleDelete = () => {
+    if (window.confirm(`Are you sure you want to delete "${coffee.name}"?`)) {
+      onDelete(coffee.id);
+    }
+  };
+
   return (
     <Card
       variant="soft"
@@ -26,6 +33,20 @@ function CoffeeCard({ coffee }) {
         <Typography level="title-md" sx={{ color: "text.primary", fontWeight: "lg" }}>
           {coffee.name}
         </Typography>
+        <IconButton
+          size="sm"
+          variant="soft"
+          color="danger"
+          onClick={handleDelete}
+          sx={{
+            minWidth: "auto",
+            "&:hover": {
+              bgcolor: "danger.softHoverBg",
+            },
+          }}
+        >
+          <Trash2 size={14} />
+        </IconButton>
       </Box>
       <Typography
         level="body-sm"
