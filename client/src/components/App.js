@@ -144,29 +144,7 @@ function App() {
   };
 
   const handleGitHubAuth = () => {
-    setLoading(true);
-    setError('');
-    
-    // First get the authorization URL from your backend
-    fetch("/auth/github", {
-      method: "GET",
-      credentials: "same-origin",
-    })
-    .then((r) => {
-      if (r.ok) {
-        return r.json();
-      } else {
-        throw new Error('Failed to get GitHub authorization URL');
-      }
-    })
-    .then((data) => {
-      // Redirect to GitHub OAuth
-      window.location.href = data.authorization_url;
-    })
-    .catch((err) => {
-      setError(err.message);
-      setLoading(false);
-    });
+    window.location.href = "/auth/github";
   };
 
   const handleClearError = () => {

@@ -11,7 +11,6 @@ import {
   ModalClose,
   Divider,
   Stack,
-  Badge
 } from "@mui/joy";
 import { Star, Edit, Delete, Plus, Coffee } from "lucide-react";
 import NoteForm from "../components/NoteForm";
@@ -81,20 +80,35 @@ function UserCoffees({ coffees, setCoffees, user, setUser }) {
   };
 
   const getUniqueUserCoffees = () => {
-    const coffeeIds = new Set(userNotes.map(note => note.coffee_id));
-    return Array.from(coffeeIds).map(coffeeId => {
-      const coffee = coffees.find(c => c.id === coffeeId);
-      const coffeeNotes = userNotes.filter(note => note.coffee_id === coffeeId);
-      const avgRating = coffeeNotes.reduce((sum, note) => sum + note.rating, 0) / coffeeNotes.length;
-      
-      return {
+  if (!userNotes || userNotes.length === 0) return [];
+
+  const grouped = {};
+
+  userNotes.forEach(note => {
+    const coffee = note.coffee;
+    if (!coffee) return; // skip if coffee data isn't attached
+
+    if (!grouped[coffee.id]) {
+      grouped[coffee.id] = {
         ...coffee,
-        notes: coffeeNotes,
-        averageRating: avgRating,
-        totalNotes: coffeeNotes.length
+        notes: [],
+        averageRating: 0,
+        totalNotes: 0
       };
-    });
-  };
+    }
+
+    grouped[coffee.id].notes.push(note);
+  });
+
+  Object.values(grouped).forEach(coffee => {
+    const total = coffee.notes.reduce((sum, n) => sum + n.rating, 0);
+    coffee.totalNotes = coffee.notes.length;
+    coffee.averageRating = total / coffee.totalNotes;
+  });
+
+  return Object.values(grouped);
+};
+
 
   if (!user) {
     return (
@@ -150,24 +164,16 @@ function UserCoffees({ coffees, setCoffees, user, setUser }) {
                   <Box>
                     <Typography level="h6" sx={{ mb: 1 }}>
                       {coffee.name}
+                      {console.log(coffee)}
                     </Typography>
                     <Typography level="body-sm" color="neutral" sx={{ mb: 1 }}>
                       {coffee.cafe?.name} • {coffee.cafe?.location}
                     </Typography>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <Box sx={{ display: "flex", gap: 0.5 }}>
-                        {renderStars(Math.round(coffee.averageRating))}
-                      </Box>
-                      <Typography level="body-sm">
-                        {coffee.averageRating.toFixed(1)}
-                      </Typography>
-                      <Badge color="primary" size="sm">
-                        {coffee.totalNotes} note{coffee.totalNotes !== 1 ? 's' : ''}
-                      </Badge>
-                    </Box>
                   </Box>
                 </Box>
-
+                <Typography level="body-sm" sx={{ mb: 2}} >
+                  Description:
+                </Typography>
                 <Typography level="body-sm" color="neutral" sx={{ mb: 2 }}>
                   {coffee.description}
                 </Typography>

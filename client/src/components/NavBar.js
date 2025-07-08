@@ -21,7 +21,6 @@ import {
   Moon,
   User,
   LogOut,
-  Star,
 } from 'lucide-react';
 
 // Import MUI icons for notes and cafes
@@ -207,11 +206,6 @@ function NavBar({ user, setUser, onLogout }) {
                     {user?.email || ''}
                   </Typography>
                 </Box>
-              </MenuItem>
-              <Divider />
-              <MenuItem sx={{ color: 'text.primary' }}>
-                <Star size={16} />
-                My Notes
               </MenuItem>
               <Divider />
               <MenuItem onClick={handleLogout} sx={{ color: 'danger.500' }}>
