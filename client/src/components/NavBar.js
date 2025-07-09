@@ -58,15 +58,8 @@ function ModeToggle() {
   );
 }
 
-function NavBar({ user, setUser, onLogout }) {
+function NavBar({ user, setUser, handleLogout }) {
   const navigate = useNavigate();
-
-  const handleLogout = () => {
-    if (onLogout) {
-      onLogout();
-    }
-    setUser(null);
-  };
 
   const navigationItems = [
     { label: 'My Coffee Notes', icon: <ArticleIcon fontSize="small" />, path: '/' },

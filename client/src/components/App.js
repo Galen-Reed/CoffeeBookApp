@@ -112,6 +112,23 @@ function App() {
     });
   };
 
+  const handleLogout = () => {
+  fetch("/logout", {
+    method: "DELETE",
+    credentials: "same-origin",
+  })
+  .then((res) => {
+    if (res.ok) {
+      setUser(null);
+    } else {
+      console.error("Logout failed");
+    }
+  })
+  .catch((err) => {
+    console.error("Error logging out:", err);
+  });
+};
+
   const handleSignup = (formData) => {
     setLoading(true);
     setError('');
@@ -143,9 +160,18 @@ function App() {
     });
   };
 
-  const handleGitHubAuth = () => {
-    window.location.href = "/auth/github";
-  };
+  const handleGitHubAuth = (e) => {
+  console.log('GitHub auth button clicked');
+  console.log('Event:', e);
+  
+  if (e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+  
+  console.log('About to redirect to /auth/github');
+  window.location.href = "/auth/github";
+};
 
   const handleClearError = () => {
     setError('');
@@ -168,7 +194,7 @@ function App() {
 
   return (
     <CssVarsProvider theme={theme}>
-      <NavBar user={user} setUser={setUser} />
+      <NavBar user={user} setUser={setUser} handleLogout={handleLogout} />
       <Routes>
         <Route path="/" element={<UserCoffees coffees={coffees} setCoffees={setCoffees} user={user} setUser={setUser} />} />
         <Route path="/cafes" element={<Cafes cafes={cafes} setCafes={setCafes} coffees={coffees} setCoffees={setCoffees} />} />
