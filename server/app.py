@@ -75,87 +75,65 @@ class Login(Resource):
             
 class Logout(Resource):
     def delete(self):
-        user = User.query.filter(User.id == session.get('user_id')).first()
-
-        if user:
-            session['user_id'] = None
-            return {'message': '204: No Content'}, 204
-        else:
-            return {'message': '401: Not authorized'}, 401
+        session.clear()
+        return {'message': '204: No Content'}, 204
 
 # Fixed GitHub OAuth implementation
-class GitHubAuth(Resource):
+class GitHubLogin(Resource):
     def get(self):
-        try:
-            redirect_uri = url_for('github_callback', _external=True)
-            return github.authorize_redirect(redirect_uri)
-        except Exception as e:
-            print(f"GitHub auth error: {e}")
-            return {"error": "Failed to redirect to GitHub"}, 500
+        print("🔐 GitHubLogin session before redirect:", dict(session))
+        
+        # Clear old GitHub state tokens to prevent CSRF mismatch
+        for key in list(session.keys()):
+            if key.startswith('_state_github_'):
+                session.pop(key)
+        
+        redirect_uri = url_for('github_callback', _external=True)
+        resp = github.authorize_redirect(redirect_uri)
+        print("🔐 GitHubLogin session AFTER redirect call:", dict(session))
+        return resp
 
-
-# This should be a regular Flask route, not a Resource
 @app.route('/auth/github/callback')
 def github_callback():
     """Handle GitHub OAuth callback"""
-    session.clear()
     try:
         token = github.authorize_access_token()
+        user_data = github.get('user').json()
         
-        # Get user info from GitHub
-        resp = github.get('user', token=token)
-        if resp.status_code != 200:
-            return redirect('/?auth=error&message=github_api_error')
-            
-        github_user = resp.json()
+        username = user_data.get('login')
+        email = user_data.get('email')
         
-        # Get user's email (might need separate API call)
-        email_resp = github.get('user/emails', token=token)
-        primary_email = None
-        if email_resp.status_code == 200:
-            emails = email_resp.json()
-            primary_email = next((email['email'] for email in emails if email['primary']), None)
+        # Get primary email if not in user data
+        if not email:
+            emails = github.get('user/emails').json()
+            email = next((e['email'] for e in emails if e['primary'] and e['verified']), None)
         
-        # Check if user already exists by GitHub ID
-        user = User.find_by_github_id(github_user['id'])
+        if not email:
+            return redirect("http://localhost:3000/login?error=email-not-found")
         
-        if user:
-            # Existing OAuth user - just log them in
-            session['user_id'] = user.id
-            # Redirect to frontend with success parameter
-            return redirect('/?auth=success')
-        else:
-            # Check if user exists by username (in case they want to link accounts)
-            existing_user = User.query.filter_by(username=github_user['login']).first()
-            
-            if existing_user and not existing_user.is_oauth_user:
-                # Username conflict with non-OAuth user
-                return redirect('/?auth=error&message=username_conflict')
-            
-            # Create new OAuth user
-            github_data = {
-                'login': github_user['login'],
-                'id': github_user['id'],
-                'email': primary_email,
-                'avatar_url': github_user.get('avatar_url')
-            }
-            
-            new_user = User.create_oauth_user(github_data)
-            
-            try:
-                db.session.add(new_user)
-                db.session.commit()
-                
-                session['user_id'] = new_user.id
-                return redirect('/?auth=success&new_user=true')
-            except Exception as e:
-                db.session.rollback()
-                print(f"Database error: {e}")
-                return redirect('/?auth=error&message=db_error')
-            
+        # Check if user exists by email (like your friend's approach)
+        user = User.query.filter_by(email=email).first()
+        
+        if not user:
+            # Create new user (simplified approach)
+            user = User(
+                username=username,
+                email=email,
+                is_oauth_user=True,
+                _password_hash=None
+            )
+
+            db.session.add(user)
+            db.session.commit()
+        
+        # Set session
+        session['user_id'] = user.id
+        
+        return redirect("http://localhost:3000/?auth=success")
+        
     except Exception as e:
         print(f"OAuth error: {e}")
-        return redirect('/?auth=error&message=oauth_failed')
+        return redirect("http://localhost:3000/?auth=error&message=oauth_failed")
 
 class GitHubLink(Resource):
     def post(self):
@@ -421,7 +399,7 @@ api.add_resource(Signup, '/signup', endpoint='signup')
 api.add_resource(CheckSession, '/check_session', endpoint='check_session')
 api.add_resource(Login, '/login', endpoint='login')
 api.add_resource(Logout, '/logout', endpoint='logout')
-api.add_resource(GitHubAuth, '/auth/github')
+api.add_resource(GitHubLogin, '/auth/github', endpoint='github_login')
 # GitHubCallback is now a regular Flask route, not a Resource
 api.add_resource(GitHubLink, '/auth/github/link')
 api.add_resource(OAuthStatus, '/auth/status')

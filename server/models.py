@@ -1,5 +1,6 @@
 from config import db, bcrypt, ma
 
+
 # Models go here!
 class User(db.Model):
     __tablename__= "users"
@@ -30,17 +31,6 @@ class User(db.Model):
         if self.is_oauth_user or not self._password_hash:
             return False
         return bcrypt.check_password_hash(self._password_hash, password)
-    
-    def to_dict(self):
-        """Convert user to dictionary for JSON responses"""
-        return {
-            'id': self.id,
-            'username': self.username,
-            'email': self.email,
-            'is_oauth_user': self.is_oauth_user,
-            'avatar_url': self.avatar_url,
-            'has_github_linked': bool(self.github_id)
-        }
     
     @classmethod
     def create_oauth_user(cls, github_data):
