@@ -11,7 +11,7 @@ const formSchema = yup.object().shape({
   location: yup.string().required("Must enter cafe's location"),
 });
 
-function CafeForm({ setCafes }) {
+function CafeForm({ setCafes, onCancel }) {
   const formik = useFormik({
     initialValues: {
       name: "",
@@ -103,6 +103,17 @@ function CafeForm({ setCafes }) {
           >
             Add Cafe
           </Button>
+          {onCancel && (
+            <Button
+              type="button"
+              variant="plain"
+              color="neutral"
+              onClick={onCancel}
+              sx={{ mt: 1 }}
+            >
+              Cancel
+            </Button>
+          )}
         </Box>
       </form>
     </Box>

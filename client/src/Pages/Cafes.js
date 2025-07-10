@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   Typography,
@@ -7,7 +8,6 @@ import {
   Button,
 } from "@mui/joy";
 import { ChevronDown, ChevronUp, Plus } from "lucide-react";
-import CafeForm from "../components/CafeForm";
 import CoffeeForm from "../components/CoffeeForm";
 import CoffeeCard from "../components/CoffeeCard";
 
@@ -24,6 +24,7 @@ const Collapse = ({ in: isOpen, children }) => (
 );
 
 const Cafes = ({ cafes, setCafes, coffees, setCoffees }) => {
+  const navigate = useNavigate();
   const [expandedCafes, setExpandedCafes] = useState(new Set());
   const [showAddCoffeeForm, setShowAddCoffeeForm] = useState(new Set());
 
@@ -109,7 +110,15 @@ const Cafes = ({ cafes, setCafes, coffees, setCoffees }) => {
         Cafe Directory
       </Typography>
 
-      <CafeForm setCafes={setCafes} />
+      <Box sx={{ display: "flex", justifyContent: "center", mb: 4 }}>
+        <Button
+          variant="solid"
+          color="primary"
+          onClick={() => navigate("/cafes/new")}
+        >
+          Add New Cafe
+        </Button>
+      </Box>
 
       <Divider sx={{ my: 4, borderColor: "divider" }} />
 

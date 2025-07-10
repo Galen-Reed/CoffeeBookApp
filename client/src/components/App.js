@@ -7,6 +7,7 @@ import NavBar from "../components/NavBar";
 import UserCoffees from "../Pages/UserCoffees";
 import Cafes from "../Pages/Cafes";
 import NoteFormPage from "../Pages/NoteFormPage";
+import CafeFormPage from "../Pages/CafeFormPage";
 import { UserContext } from "../context/UserContext";
 
 function App() {
@@ -215,6 +216,7 @@ useEffect(() => {
         <Routes>
           <Route path="/" element={<UserCoffees coffees={coffees} setCoffees={setCoffees} user={user} setUser={setUser} />} />
           <Route path="/cafes" element={<Cafes cafes={cafes} setCafes={setCafes} coffees={coffees} setCoffees={setCoffees} />} />
+          <Route path="/cafes/new" element={<CafeFormPage cafes={cafes} />} />
           <Route path="/notes/new" element={<NoteFormPage coffees={coffees} />} />
           <Route path="/notes/:id/edit" element={<NoteFormPage coffees={coffees} />} />
         </Routes>
