@@ -23,7 +23,7 @@ const formSchema = yup.object().shape({
     .max(500, "Description should be less than 500 characters")
 });
 
-function CoffeeForm({ cafeId, setCoffees, onCancel }) {
+function CoffeeForm({ cafeId, setCoffees, onCancel, onCoffeeAdded }) {
   const formik = useFormik({
     initialValues: {
       name: "",
@@ -49,6 +49,7 @@ function CoffeeForm({ cafeId, setCoffees, onCancel }) {
             response.json().then((newCoffee) => {
               console.log("New Coffee:", newCoffee);
               setCoffees(newCoffee);
+              if (onCoffeeAdded) onCoffeeAdded(newCoffee);
               formik.resetForm();
               // Hide the form after successful submission
               if (onCancel) {

@@ -143,23 +143,33 @@ export default function LoginForm({
 
       {/* GitHub OAuth */}
       <Button
-        variant="outlined"
-        fullWidth
-        size="lg"
-        startDecorator={<Github size={20} />}
-        onClick={onGitHubAuth}
-        disabled={loading}
-        sx={{
-          borderColor: 'neutral.300',
-          color: 'neutral.700',
-          '&:hover': {
-            borderColor: 'neutral.400',
-            backgroundColor: 'neutral.50',
-          },
-        }}
-      >
-        Continue with GitHub
-      </Button>
+  variant="outlined"
+  fullWidth
+  size="lg"
+  startDecorator={<Github size={20} />}
+  onClick={(e) => {
+    console.log('GitHub button clicked!');
+    console.log('onGitHubAuth function:', onGitHubAuth);
+    console.log('onGitHubAuth type:', typeof onGitHubAuth);
+    
+    if (onGitHubAuth) {
+      onGitHubAuth(e);
+    } else {
+      console.error('onGitHubAuth is not defined!');
+    }
+  }}
+  disabled={loading}
+  sx={{
+    borderColor: 'neutral.300',
+    color: 'neutral.700',
+    '&:hover': {
+      borderColor: 'neutral.400',
+      backgroundColor: 'neutral.50',
+    },
+  }}
+>
+  Continue with GitHub
+</Button>
 
       {/* Toggle */}
       <Typography

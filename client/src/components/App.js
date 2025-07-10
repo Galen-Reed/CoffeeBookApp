@@ -28,58 +28,61 @@ function App() {
     .then((data) => setCoffees(data));
   }, []);
 
-  // Handle OAuth callback
-  useEffect(() => {
-    const urlParams = new URLSearchParams(location.search);
-    const authStatus = urlParams.get('auth');
-    const errorMessage = urlParams.get('message');
-    const isNewUser = urlParams.get('new_user');
+  // Only run this useEffect when there's an auth redirect (from GitHub)
+useEffect(() => {
+  const urlParams = new URLSearchParams(location.search);
+  const authStatus = urlParams.get('auth');
+  const errorMessage = urlParams.get('message');
+  const isNewUser = urlParams.get('new_user');
 
-    if (authStatus === 'success') {
-      // OAuth was successful, check session
-      fetch("/check_session", {
-        method: "GET",
-        credentials: "same-origin",
-      }).then((r) => {
-        if (r.ok) {
-          r.json().then((userData) => {
-            setUser(userData);
-            // Clear URL parameters
-            navigate('/', { replace: true });
-            // Optionally show success message
-            if (isNewUser) {
-              console.log('Welcome! Your account has been created.');
-            } else {
-              console.log('Welcome back!');
-            }
-          });
-        }
-      });
-    } else if (authStatus === 'error') {
-      // OAuth failed
-      let errorText = 'Authentication failed';
-      if (errorMessage === 'username_conflict') {
-        errorText = 'Username already exists with a different authentication method';
-      } else if (errorMessage === 'oauth_failed') {
-        errorText = 'GitHub authentication failed. Please try again.';
+  if (authStatus === 'success') {
+    fetch("/check_session", {
+      method: "GET",
+      credentials: "same-origin",
+    }).then((r) => {
+      if (r.ok) {
+        r.json().then((userData) => {
+          setUser(userData);
+          navigate('/', { replace: true });
+
+          if (isNewUser) {
+            console.log('Welcome! Your account has been created.');
+          } else {
+            console.log('Welcome back!');
+          }
+        });
       }
-      setError(errorText);
-      // Clear URL parameters
-      navigate('/', { replace: true });
-    } else {
-      // Normal session check
-      fetch("/check_session", {
-        method: "GET",
-        credentials: "same-origin",
-      }).then((r) => {
-        if (r.ok) {
-          r.json().then((userData) => {
-            setUser(userData);
-          });
-        }
-      });
+    });
+  } else if (authStatus === 'error') {
+    let errorText = 'Authentication failed';
+    if (errorMessage === 'username_conflict') {
+      errorText = 'Username already exists with a different authentication method';
+    } else if (errorMessage === 'oauth_failed') {
+      errorText = 'GitHub authentication failed. Please try again.';
     }
-  }, [location.search, navigate]);
+    setError(errorText);
+    navigate('/', { replace: true });
+  }
+}, [location.search, navigate]);
+
+useEffect(() => {
+  const urlParams = new URLSearchParams(location.search);
+  const authStatus = urlParams.get('auth');
+
+  if (!authStatus) {
+    fetch("/check_session", {
+      method: "GET",
+      credentials: "same-origin",
+    }).then((r) => {
+      if (r.ok) {
+        r.json().then((userData) => {
+          setUser(userData);
+        });
+      }
+    });
+  }
+}, [location.search]);
+
 
   const handleLogin = (formData) => {
     setLoading(true);
@@ -161,16 +164,21 @@ function App() {
   };
 
   const handleGitHubAuth = (e) => {
-  console.log('GitHub auth button clicked');
-  console.log('Event:', e);
-  
   if (e) {
     e.preventDefault();
     e.stopPropagation();
   }
-  
-  console.log('About to redirect to /auth/github');
-  window.location.href = "/auth/github";
+
+  fetch("/logout", {
+    method: "DELETE",
+    credentials: "same-origin",
+  })
+  .then(() => {
+    window.location.replace("http://localhost:5555/auth/github");
+  })
+  .catch(() => {
+    window.location.replace("http://localhost:5555/auth/github");
+  });
 };
 
   const handleClearError = () => {
