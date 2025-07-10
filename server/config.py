@@ -1,6 +1,3 @@
-# Standard library imports
-
-# Remote library imports
 import os
 from dotenv import load_dotenv
 load_dotenv()
@@ -14,7 +11,7 @@ from flask_marshmallow import Marshmallow
 from flask_bcrypt import Bcrypt
 from authlib.integrations.flask_client import OAuth
 
-# Instantiate app, set attributes
+# Instantiate app
 app = Flask(__name__)
 
 app.secret_key = os.environ.get("SECRET_KEY") or "dev-secret-key"

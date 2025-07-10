@@ -61,15 +61,13 @@ const Cafes = () => {
       });
 
       if (response.ok) {
-        // Update local state by removing the coffee from the cafe
         setCafes((prevCafes) =>
           prevCafes.map((cafe) => ({
             ...cafe,
             coffees: cafe.coffees?.filter((coffee) => coffee.id !== coffeeId) || [],
           }))
         );
-
-        // Also update the global coffees state if it exists
+        
         if (setCoffees) {
           setCoffees((prevCoffees) =>
             prevCoffees.filter((coffee) => coffee.id !== coffeeId)

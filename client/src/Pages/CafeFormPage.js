@@ -1,4 +1,3 @@
-// Pages/CafeFormPage.jsx
 import React from "react";
 import { Box } from "@mui/joy";
 import CafeForm from "../components/CafeForm";

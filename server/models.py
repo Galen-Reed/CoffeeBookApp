@@ -1,6 +1,5 @@
 from config import db, bcrypt, ma
 
-
 # Models go here!
 class User(db.Model):
     __tablename__= "users"
@@ -8,7 +7,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, unique=True, nullable=False)
     email = db.Column(db.String, unique=True, nullable=True)
-    _password_hash = db.Column(db.String(100), nullable=True)  # Made nullable for OAuth users
+    _password_hash = db.Column(db.String(100), nullable=True)  
 
     github_id = db.Column(db.String, unique=True, nullable=True)
     avatar_url = db.Column(db.String, nullable=True)  
@@ -36,12 +35,12 @@ class User(db.Model):
     def create_oauth_user(cls, github_data):
         """Create a new user from GitHub OAuth data"""
         user = cls(
-            username=github_data.get('login'),  # GitHub username
+            username=github_data.get('login'), 
             email=github_data.get('email'),
             github_id=str(github_data.get('id')),
             avatar_url=github_data.get('avatar_url'),
             is_oauth_user=True,
-            _password_hash=None  # OAuth users don't have passwords
+            _password_hash=None  
         )
         return user
     
@@ -83,7 +82,6 @@ class Note(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     coffee_id = db.Column(db.Integer, db.ForeignKey("coffees.id"), nullable=False)
 
-    #Relationships
     user = db.relationship("User", back_populates="notes", overlaps="coffees,users")
     coffee = db.relationship("Coffee", back_populates="notes", overlaps="coffees,users")
 

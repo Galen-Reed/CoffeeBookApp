@@ -1,4 +1,3 @@
-
 from flask import request, session, make_response, redirect, url_for, jsonify
 from flask_restful import Resource
 
@@ -15,8 +14,6 @@ coffee_schema = CoffeeSchema()
 coffees_schema = CoffeeSchema(many=True)
 cafe_schema = CafeSchema()
 cafes_schema = CafeSchema(many=True)
-
-# Views go here!
 
 class Signup(Resource):
     def post(self):
@@ -74,12 +71,11 @@ class Logout(Resource):
         session.clear()
         return {'message': '204: No Content'}, 204
 
-# Fixed GitHub OAuth implementation
+
 class GitHubLogin(Resource):
     def get(self):
         print("🔐 GitHubLogin session before redirect:", dict(session))
         
-        # Clear old GitHub state tokens to prevent CSRF mismatch
         for key in list(session.keys()):
             if key.startswith('_state_github_'):
                 session.pop(key)
@@ -99,7 +95,6 @@ def github_callback():
         username = user_data.get('login')
         email = user_data.get('email')
         
-        # Get primary email if not in user data
         if not email:
             emails = github.get('user/emails').json()
             email = next((e['email'] for e in emails if e['primary'] and e['verified']), None)
@@ -107,11 +102,9 @@ def github_callback():
         if not email:
             return redirect("http://localhost:3000/login?error=email-not-found")
         
-        # Check if user exists by email (like your friend's approach)
         user = User.query.filter_by(email=email).first()
         
         if not user:
-            # Create new user (simplified approach)
             user = User(
                 username=username,
                 email=email,
@@ -122,7 +115,6 @@ def github_callback():
             db.session.add(user)
             db.session.commit()
         
-        # Set session
         session['user_id'] = user.id
         
         return redirect("http://localhost:3000")
@@ -137,8 +129,6 @@ class GitHubLink(Resource):
         if 'user_id' not in session:
             return {"error": "Must be logged in to link accounts"}, 401
         
-        # This would typically require a separate OAuth flow
-        # For now, we'll accept GitHub user data in the request
         data = request.get_json()
         github_id = data.get('github_id')
         avatar_url = data.get('avatar_url')
@@ -146,12 +136,10 @@ class GitHubLink(Resource):
         if not github_id:
             return {"error": "GitHub ID required"}, 422
         
-        # Check if GitHub account is already linked to another user
         existing_oauth_user = User.find_by_github_id(github_id)
         if existing_oauth_user:
             return {"error": "GitHub account already linked to another user"}, 422
-        
-        # Link to current user
+
         current_user = User.query.get(session['user_id'])
         current_user.github_id = str(github_id)
         current_user.avatar_url = avatar_url
@@ -396,7 +384,6 @@ api.add_resource(CheckSession, '/check_session', endpoint='check_session')
 api.add_resource(Login, '/login', endpoint='login')
 api.add_resource(Logout, '/logout', endpoint='logout')
 api.add_resource(GitHubLogin, '/auth/github', endpoint='github_login')
-# GitHubCallback is now a regular Flask route, not a Resource
 api.add_resource(GitHubLink, '/auth/github/link')
 api.add_resource(OAuthStatus, '/auth/status')
 api.add_resource(Notes, '/notes', endpoint="notes")

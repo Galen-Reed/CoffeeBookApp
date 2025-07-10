@@ -92,7 +92,6 @@ function NoteForm({ onNoteAdded, onCancel, existingNote = null }) {
 
   const handleCoffeeChange = (event, newValue) => {
     if (newValue === "add-new") {
-      // Redirect to cafes page to add new coffee
       window.location.href = "/cafes";
       return;
     }
@@ -112,7 +111,7 @@ function NoteForm({ onNoteAdded, onCancel, existingNote = null }) {
       <Box component="form" onSubmit={handleSubmit}>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           
-          {/* Coffee Selection */}
+          {/*Coffees*/}
           <FormControl error={formik.touched.coffee_id && Boolean(formik.errors.coffee_id)}>
             <FormLabel>Coffee</FormLabel>
             <Select
@@ -121,9 +120,7 @@ function NoteForm({ onNoteAdded, onCancel, existingNote = null }) {
               onChange={handleCoffeeChange}
               onBlur={formik.handleBlur}
               placeholder="Select a coffee"
-              // Remove the disabled prop entirely - allow editing coffee selection
             >
-              {/* Add "Add New Coffee" option only when not editing */}
               {!isEditing && (
                 <Option value="add-new" sx={{ fontStyle: "italic", color: "primary.main" }}>
                   + Add New Coffee
@@ -140,7 +137,7 @@ function NoteForm({ onNoteAdded, onCancel, existingNote = null }) {
             )}
           </FormControl>
 
-          {/* Rating Slider */}
+          {/*Rating*/}
           <FormControl error={formik.touched.rating && Boolean(formik.errors.rating)}>
             <FormLabel>
               Rating: {formik.values.rating}/5 - {getRatingLabel(formik.values.rating)}
@@ -169,7 +166,7 @@ function NoteForm({ onNoteAdded, onCancel, existingNote = null }) {
             )}
           </FormControl>
 
-          {/* Comment */}
+          {/*Comment*/}
           <FormControl error={formik.touched.comment && Boolean(formik.errors.comment)}>
             <FormLabel>Comment</FormLabel>
             <Textarea
