@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
+import { useUser } from "../context/UserContext"
 import {
   Box,
   Typography,
@@ -58,7 +59,8 @@ function ModeToggle() {
   );
 }
 
-function NavBar({ user, setUser, handleLogout }) {
+function NavBar({ handleLogout }) {
+  const { user } = useUser();
   const navigate = useNavigate();
 
   const navigationItems = [

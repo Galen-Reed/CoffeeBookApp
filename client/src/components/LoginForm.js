@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useUser } from "../context/UserContext";
+
 import {
   Sheet,
   Typography,
@@ -19,10 +21,8 @@ export default function LoginForm({
   onLogin,
   onSignup,
   onGitHubAuth,
-  loading = false,
-  error = '',
-  onClearError,
 }) {
+  const { loading, error, setError } = useUser;
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
@@ -30,7 +30,7 @@ export default function LoginForm({
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    if (error && onClearError) onClearError();
+    if (error) setError('');
   };
 
   const handleSubmit = (e) => {
@@ -186,7 +186,7 @@ export default function LoginForm({
           type="button"
           onClick={() => {
             setIsSignUp(!isSignUp);
-            if (onClearError) onClearError();
+            setError('');
             setFormData({ username: '', password: '' });
           }}
           sx={{ fontWeight: 'md' }}

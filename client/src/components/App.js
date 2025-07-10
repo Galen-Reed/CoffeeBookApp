@@ -6,6 +6,7 @@ import Login from "../Pages/Login";
 import NavBar from "../components/NavBar";
 import UserCoffees from "../Pages/UserCoffees";
 import Cafes from "../Pages/Cafes";
+import { UserContext } from "../context/UserContext";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -188,25 +189,33 @@ useEffect(() => {
   if (!user) {
     return (
       <CssVarsProvider>
-        <Login
-          onLogin={handleLogin}
-          onSignup={handleSignup}
-          onGitHubAuth={handleGitHubAuth}
-          loading={loading}
-          error={error}
-          onClearError={handleClearError}
-        />
+        <UserContext.Provider
+          value={{ user, setUser, loading, setLoading, error, setError}}
+        >
+          <Login
+            onLogin={handleLogin}
+            onSignup={handleSignup}
+            onGitHubAuth={handleGitHubAuth}
+            loading={loading}
+            error={error}
+            onClearError={handleClearError}
+          />
+        </UserContext.Provider>
       </CssVarsProvider>
     );
   }
 
   return (
     <CssVarsProvider theme={theme}>
-      <NavBar user={user} setUser={setUser} handleLogout={handleLogout} />
-      <Routes>
-        <Route path="/" element={<UserCoffees coffees={coffees} setCoffees={setCoffees} user={user} setUser={setUser} />} />
-        <Route path="/cafes" element={<Cafes cafes={cafes} setCafes={setCafes} coffees={coffees} setCoffees={setCoffees} />} />
-      </Routes>
+      <UserContext.Provider
+        value={{ user, setUser, loading, setLoading, error, setError }}
+      >
+        <NavBar user={user} setUser={setUser} handleLogout={handleLogout} />
+        <Routes>
+          <Route path="/" element={<UserCoffees coffees={coffees} setCoffees={setCoffees} user={user} setUser={setUser} />} />
+          <Route path="/cafes" element={<Cafes cafes={cafes} setCafes={setCafes} coffees={coffees} setCoffees={setCoffees} />} />
+        </Routes>
+      </UserContext.Provider>
     </CssVarsProvider>
   );
 }
