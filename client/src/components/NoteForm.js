@@ -4,7 +4,6 @@ import * as yup from "yup";
 import {
   Button,
   Box,
-  Typography,
   FormLabel,
   FormControl,
   FormHelperText,
@@ -108,9 +107,6 @@ function NoteForm({ coffees, onNoteAdded, onCancel, existingNote = null }) {
         borderColor: "divider"
       }}
     >
-      <Typography level="h5" sx={{ mb: 2 }}>
-        {isEditing ? "Edit Note" : "Add New Note"}
-      </Typography>
       <Box component="form" onSubmit={handleSubmit}>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           

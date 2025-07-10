@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -6,52 +7,25 @@ import {
   CardContent,
   Button,
   IconButton,
-  Modal,
-  ModalDialog,
-  ModalClose,
   Divider,
   Stack,
 } from "@mui/joy";
 import { Star, Edit, Delete, Plus, Coffee } from "lucide-react";
-import NoteForm from "../components/NoteForm";
 
-function UserCoffees({ coffees, setCoffees, user, setUser }) {
-  const [showNoteForm, setShowNoteForm] = useState(false);
-  const [editingNote, setEditingNote] = useState(null);
+function UserCoffees({ coffees, user, setUser }) {
+  const navigate = useNavigate();
 
-  // Use notes from user data (from check_session)
   const userNotes = user?.notes || [];
-
-  const handleNoteAdded = (newNote) => {
-    if (editingNote) {
-      // Update existing note in user data
-      const updatedNotes = user.notes.map(note => 
-        note.id === editingNote.id ? newNote : note
-      );
-      setUser({ ...user, notes: updatedNotes });
-      setEditingNote(null);
-    } else {
-      // Add new note to user data
-      const updatedNotes = [...user.notes, newNote];
-      setUser({ ...user, notes: updatedNotes });
-    }
-    setShowNoteForm(false);
-  };
-
-  const handleEditNote = (note) => {
-    setEditingNote(note);
-    setShowNoteForm(true);
-  };
 
   const handleDeleteNote = (noteId) => {
     if (window.confirm("Are you sure you want to delete this note?")) {
       fetch(`/notes/${noteId}`, {
         method: "DELETE",
-        credentials: "same-origin"
+        credentials: "same-origin",
       })
         .then((response) => {
           if (response.ok) {
-            const updatedNotes = user.notes.filter(note => note.id !== noteId);
+            const updatedNotes = user.notes.filter((note) => note.id !== noteId);
             setUser({ ...user, notes: updatedNotes });
           } else {
             throw new Error("Failed to delete note");
@@ -63,13 +37,8 @@ function UserCoffees({ coffees, setCoffees, user, setUser }) {
     }
   };
 
-  const handleCloseForm = () => {
-    setShowNoteForm(false);
-    setEditingNote(null);
-  };
-
-  const renderStars = (rating) => {
-    return Array.from({ length: 5 }, (_, i) => (
+  const renderStars = (rating) =>
+    Array.from({ length: 5 }, (_, i) => (
       <Star
         key={i}
         size={16}
@@ -77,38 +46,36 @@ function UserCoffees({ coffees, setCoffees, user, setUser }) {
         color={i < rating ? "#fbbf24" : "#d1d5db"}
       />
     ));
-  };
 
   const getUniqueUserCoffees = () => {
-  if (!userNotes || userNotes.length === 0) return [];
+    if (!userNotes || userNotes.length === 0) return [];
 
-  const grouped = {};
+    const grouped = {};
 
-  userNotes.forEach(note => {
-    const coffee = note.coffee;
-    if (!coffee) return; // skip if coffee data isn't attached
+    userNotes.forEach((note) => {
+      const coffee = note.coffee;
+      if (!coffee) return;
 
-    if (!grouped[coffee.id]) {
-      grouped[coffee.id] = {
-        ...coffee,
-        notes: [],
-        averageRating: 0,
-        totalNotes: 0
-      };
-    }
+      if (!grouped[coffee.id]) {
+        grouped[coffee.id] = {
+          ...coffee,
+          notes: [],
+          averageRating: 0,
+          totalNotes: 0,
+        };
+      }
 
-    grouped[coffee.id].notes.push(note);
-  });
+      grouped[coffee.id].notes.push(note);
+    });
 
-  Object.values(grouped).forEach(coffee => {
-    const total = coffee.notes.reduce((sum, n) => sum + n.rating, 0);
-    coffee.totalNotes = coffee.notes.length;
-    coffee.averageRating = total / coffee.totalNotes;
-  });
+    Object.values(grouped).forEach((coffee) => {
+      const total = coffee.notes.reduce((sum, n) => sum + n.rating, 0);
+      coffee.totalNotes = coffee.notes.length;
+      coffee.averageRating = total / coffee.totalNotes;
+    });
 
-  return Object.values(grouped);
-};
-
+    return Object.values(grouped);
+  };
 
   if (!user) {
     return (
@@ -130,7 +97,7 @@ function UserCoffees({ coffees, setCoffees, user, setUser }) {
           variant="solid"
           color="primary"
           startDecorator={<Plus />}
-          onClick={() => setShowNoteForm(true)}
+          onClick={() => navigate("/notes/new")}
         >
           Add New Note
         </Button>
@@ -149,29 +116,35 @@ function UserCoffees({ coffees, setCoffees, user, setUser }) {
               variant="solid"
               color="primary"
               startDecorator={<Plus />}
-              onClick={() => setShowNoteForm(true)}
+              onClick={() => navigate("/notes/new")}
             >
               Add Your First Note
             </Button>
           </CardContent>
         </Card>
       ) : (
-        <Box sx={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))", gap: 3 }}>
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))",
+            gap: 3,
+          }}
+        >
           {userCoffees.map((coffee) => (
             <Card key={coffee.id} variant="outlined" sx={{ height: "fit-content" }}>
               <CardContent>
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>
+                <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
                   <Box>
                     <Typography level="h6" sx={{ mb: 1 }}>
                       {coffee.name}
-                      {console.log(coffee)}
                     </Typography>
                     <Typography level="body-sm" color="neutral" sx={{ mb: 1 }}>
                       {coffee.cafe?.name} • {coffee.cafe?.location}
                     </Typography>
                   </Box>
                 </Box>
-                <Typography level="body-sm" sx={{ mb: 2}} >
+
+                <Typography level="body-sm" sx={{ mb: 2 }}>
                   Description:
                 </Typography>
                 <Typography level="body-sm" color="neutral" sx={{ mb: 2 }}>
@@ -185,21 +158,17 @@ function UserCoffees({ coffees, setCoffees, user, setUser }) {
                   {coffee.notes.map((note) => (
                     <Card key={note.id} variant="soft" size="sm">
                       <CardContent>
-                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1 }}>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
                           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                            <Box sx={{ display: "flex", gap: 0.5 }}>
-                              {renderStars(note.rating)}
-                            </Box>
-                            <Typography level="body-sm">
-                              {note.rating}/5
-                            </Typography>
+                            <Box sx={{ display: "flex", gap: 0.5 }}>{renderStars(note.rating)}</Box>
+                            <Typography level="body-sm">{note.rating}/5</Typography>
                           </Box>
                           <Box sx={{ display: "flex", gap: 0.5 }}>
                             <IconButton
                               size="sm"
                               variant="plain"
                               color="neutral"
-                              onClick={() => handleEditNote(note)}
+                              onClick={() => navigate(`/notes/${note.id}/edit`)}
                             >
                               <Edit size={14} />
                             </IconButton>
@@ -213,9 +182,7 @@ function UserCoffees({ coffees, setCoffees, user, setUser }) {
                             </IconButton>
                           </Box>
                         </Box>
-                        <Typography level="body-sm">
-                          {note.comment}
-                        </Typography>
+                        <Typography level="body-sm">{note.comment}</Typography>
                       </CardContent>
                     </Card>
                   ))}
@@ -225,19 +192,6 @@ function UserCoffees({ coffees, setCoffees, user, setUser }) {
           ))}
         </Box>
       )}
-
-      {/* Note Form Modal */}
-      <Modal open={showNoteForm} onClose={handleCloseForm}>
-        <ModalDialog size="lg" sx={{ maxWidth: "600px", width: "90vw" }}>
-          <ModalClose />
-          <NoteForm
-            coffees={coffees}
-            onNoteAdded={handleNoteAdded}
-            onCancel={handleCloseForm}
-            existingNote={editingNote}
-          />
-        </ModalDialog>
-      </Modal>
     </Box>
   );
 }
