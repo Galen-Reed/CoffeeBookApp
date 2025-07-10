@@ -1,14 +1,10 @@
-#!/usr/bin/env python3
 
-# Standard library imports
-
-# Remote library imports
 from flask import request, session, make_response, redirect, url_for, jsonify
 from flask_restful import Resource
 
-# Local imports
+
 from config import app, db, api, github
-# Add your model imports
+
 from models import User, Note, Coffee, Cafe, UserSchema, NoteSchema, CoffeeSchema, CafeSchema
 
 user_schema = UserSchema()
@@ -129,11 +125,11 @@ def github_callback():
         # Set session
         session['user_id'] = user.id
         
-        return redirect("http://localhost:3000/?auth=success")
+        return redirect("http://localhost:3000")
         
     except Exception as e:
         print(f"OAuth error: {e}")
-        return redirect("http://localhost:3000/?auth=error&message=oauth_failed")
+        return redirect("http://localhost:3000")
 
 class GitHubLink(Resource):
     def post(self):

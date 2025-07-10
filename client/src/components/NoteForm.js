@@ -1,4 +1,5 @@
 import React from "react";
+import { useUser } from "../context/UserContext";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import {
@@ -28,8 +29,9 @@ const formSchema = yup.object().shape({
     .required("Must select a coffee")
 });
 
-function NoteForm({ coffees, onNoteAdded, onCancel, existingNote = null }) {
+function NoteForm({ onNoteAdded, onCancel, existingNote = null }) {
   const isEditing = Boolean(existingNote);
+  const { coffees } = useUser();
   
   const formik = useFormik({
     initialValues: {

@@ -10,6 +10,7 @@ import {
 import { ChevronDown, ChevronUp, Plus } from "lucide-react";
 import CoffeeForm from "../components/CoffeeForm";
 import CoffeeCard from "../components/CoffeeCard";
+import { useUser } from "../context/UserContext";
 
 const Collapse = ({ in: isOpen, children }) => (
   <Box
@@ -23,7 +24,8 @@ const Collapse = ({ in: isOpen, children }) => (
   </Box>
 );
 
-const Cafes = ({ cafes, setCafes, coffees, setCoffees }) => {
+const Cafes = () => {
+  const { cafes, setCafes, setCoffees } = useUser();
   const navigate = useNavigate();
   const [expandedCafes, setExpandedCafes] = useState(new Set());
   const [showAddCoffeeForm, setShowAddCoffeeForm] = useState(new Set());
@@ -84,10 +86,10 @@ const Cafes = ({ cafes, setCafes, coffees, setCoffees }) => {
   };
 
   const handleCoffeeAdded = (newCoffee) => {
-  if (setCoffees) {
-    setCoffees((prevCoffees) => [...prevCoffees, newCoffee]);
-  }
-};
+    if (setCoffees) {
+      setCoffees((prevCoffees) => [...prevCoffees, newCoffee]);
+    }
+  };
 
   return (
     <Box

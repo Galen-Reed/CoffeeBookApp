@@ -11,9 +11,11 @@ import {
   Stack,
 } from "@mui/joy";
 import { Star, Edit, Delete, Plus, Coffee } from "lucide-react";
+import { useUser } from "../context/UserContext";
 
-function UserCoffees({ coffees, user, setUser }) {
+function UserCoffees() {
   const navigate = useNavigate();
+  const { user, setUser } = useUser();
 
   const userNotes = user?.notes || [];
 

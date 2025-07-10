@@ -26,6 +26,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 app.config['GITHUB_CLIENT_ID'] = os.environ.get("GITHUB_CLIENT_ID")
 app.config['GITHUB_CLIENT_SECRET'] = os.environ.get("GITHUB_CLIENT_SECRET")
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_SECURE"] = False
 
 
 # Define metadata, instantiate db

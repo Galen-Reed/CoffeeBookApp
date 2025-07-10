@@ -1,14 +1,14 @@
 // Pages/NoteFormPage.jsx
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Box, Typography } from "@mui/joy";
 import NoteForm from "../components/NoteForm";
-import { UserContext } from "../context/UserContext";
+import { useUser } from "../context/UserContext"; // ✅ custom hook instead of raw context
 
 function NoteFormPage({ coffees }) {
   const { id } = useParams(); // note id if editing
   const navigate = useNavigate();
-  const { user, setUser } = useContext(UserContext);
+  const { user, setUser } = useUser(); // ✅ useUser() hook here
   const [existingNote, setExistingNote] = useState(null);
   const isEditing = !!id;
 
