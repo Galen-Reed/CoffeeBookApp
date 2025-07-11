@@ -9,13 +9,36 @@ export function useUser() {
 
 export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [allCoffees, setAllCoffees] = useState([]);
+  const [cafes, setCafes] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchUser();
+    fetchCafes();
+    fetchAllCoffees();
   }, []);
+
+  const fetchCafes = async () => {
+    try {
+      const response = await fetch('/cafes', { credentials: 'same-origin' });
+      if (response.ok) {
+        const data = await response.json();
+        setCafes(data);
+      }
+    } catch (error) {
+      console.error('Error fetching cafes:', error);
+    }
+  };
+
+  const fetchAllCoffees = () => {
+  fetch("/coffees", { credentials: "same-origin" })
+    .then((r) => r.json())
+    .then(setAllCoffees)
+    .catch((e) => console.error("Failed to fetch all coffees", e));
+};
 
   const fetchUser = async () => {
     try {
@@ -105,8 +128,9 @@ export function UserProvider({ children }) {
     setUser,
     loading,
     error,
-    cafes: user?.cafes || [],
+    cafes,
     coffees: user?.coffees || [],
+    allCoffees,
     handleLogin,
     handleSignup,
     handleLogout,
