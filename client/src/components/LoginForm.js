@@ -17,11 +17,8 @@ import {
 } from '@mui/joy';
 import { Coffee, Github, Eye, EyeOff } from 'lucide-react';
 
-export default function LoginForm({
-  onLogin,
-  onGitHubAuth,
-}) {
-  const { loading, error, handleClearError, handleSignup } = useUser();
+export default function LoginForm() {
+  const { loading, error, handleClearError, handleSignup, handleLogin, handleGitHubAuth } = useUser();
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
@@ -34,7 +31,7 @@ export default function LoginForm({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    isSignUp ? handleSignup(formData) : onLogin(formData);
+    isSignUp ? handleSignup(formData) : handleLogin(formData);
   };
 
   const togglePasswordVisibility = () => {
@@ -148,13 +145,13 @@ export default function LoginForm({
   startDecorator={<Github size={20} />}
   onClick={(e) => {
     console.log('GitHub button clicked!');
-    console.log('onGitHubAuth function:', onGitHubAuth);
-    console.log('onGitHubAuth type:', typeof onGitHubAuth);
+    console.log('handleGitHubAuth function:', handleGitHubAuth);
+    console.log('handleGitHubAuth type:', typeof handleGitHubAuth);
     
-    if (onGitHubAuth) {
-      onGitHubAuth(e);
+    if (handleGitHubAuth) {
+      handleGitHubAuth(e);
     } else {
-      console.error('onGitHubAuth is not defined!');
+      console.error('handleGitHubAuth is not defined!');
     }
   }}
   disabled={loading}
