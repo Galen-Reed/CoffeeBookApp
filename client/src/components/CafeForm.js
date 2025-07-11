@@ -1,7 +1,9 @@
 import React from "react";
 import { useFormik } from "formik";
+import { useUser } from "../context/UserContext";
 import * as yup from "yup";
 import { Box, Button, Input, FormControl, FormLabel, FormHelperText, Typography } from "@mui/joy";
+import { useNavigate } from "react-router-dom";
 
 const formSchema = yup.object().shape({
   name: yup
@@ -11,7 +13,11 @@ const formSchema = yup.object().shape({
   location: yup.string().required("Must enter cafe's location"),
 });
 
-function CafeForm({ setCafes, onCancel }) {
+function CafeForm({ onCancel }) {
+
+  const { setCafes } = useUser();
+  const navigate = useNavigate();
+
   const formik = useFormik({
     initialValues: {
       name: "",
@@ -31,6 +37,7 @@ function CafeForm({ setCafes, onCancel }) {
             response.json().then((newCafe) => {
               setCafes((prev) => [...prev, newCafe]);
               formik.resetForm();
+              navigate("/cafes");
             });
           } else {
             console.error("Failed to submit the form, response not ok");

@@ -1,9 +1,12 @@
 import React from "react";
+import { useUser } from "../context/UserContext";
 import { Box } from "@mui/joy";
 import CafeForm from "../components/CafeForm";
 import { useNavigate } from "react-router-dom";
 
-function CafeFormPage({ setCafes }) {
+function CafeFormPage() {
+
+  const { setCafes } = useUser();
   const navigate = useNavigate();
 
   return (
