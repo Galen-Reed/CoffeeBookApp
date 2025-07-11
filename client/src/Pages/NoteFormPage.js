@@ -7,7 +7,7 @@ import { useUser } from "../context/UserContext";
 function NoteFormPage({ coffees }) {
   const { id } = useParams(); 
   const navigate = useNavigate();
-  const { user, setUser } = useUser(); 
+  const { user, setUser, fetchUser } = useUser(); 
   const [existingNote, setExistingNote] = useState(null);
   const isEditing = !!id;
 
@@ -21,14 +21,24 @@ function NoteFormPage({ coffees }) {
     }
   }, [id, isEditing]);
 
-  const handleNoteAdded = (newNote) => {
-    const updatedNotes = isEditing
-      ? user.notes.map((note) => (note.id === newNote.id ? newNote : note))
-      : [...user.notes, newNote];
+const handleNoteAdded = (newNote) => {
+  // update user with new coffees/notes
+  const updatedCoffees = user.coffees.map((coffee) => {
+    if (coffee.id === newNote.coffee_id) {
+      const existingNotes = coffee.notes || [];
+      const updatedNotes = isEditing
+        ? existingNotes.map((note) => (note.id === newNote.id ? newNote : note))
+        : [...existingNotes, newNote];
+      return { ...coffee, notes: updatedNotes };
+    }
+    return coffee;
+  });
 
-    setUser({ ...user, notes: updatedNotes });
-    navigate("/");
-  };
+  setUser({ ...user, coffees: updatedCoffees });
+  fetchUser();
+  navigate("/");
+};
+
 
   const handleCancel = () => {
     navigate("/");

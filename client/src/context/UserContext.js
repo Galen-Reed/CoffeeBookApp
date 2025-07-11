@@ -11,25 +11,11 @@ export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [cafes, setCafes] = useState([]);
-  const [coffees, setCoffees] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchUser();
   }, []);
-
-
-  useEffect(() => {
-    if (user) {
-      fetchCafes();
-      fetchCoffees();
-    } else {
-
-      setCafes([]);
-      setCoffees([]);
-    }
-  }, [user]);
 
   const fetchUser = async () => {
     try {
@@ -44,30 +30,6 @@ export function UserProvider({ children }) {
       console.error("Error fetching session:", err);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchCafes = async () => {
-    try {
-      const response = await fetch('/cafes', { credentials: 'same-origin' });
-      if (response.ok) {
-        const data = await response.json();
-        setCafes(data);
-      }
-    } catch (error) {
-      console.error('Error fetching cafes:', error);
-    }
-  };
-
-  const fetchCoffees = async () => {
-    try {
-      const response = await fetch('/coffees', { credentials: 'same-origin' });
-      if (response.ok) {
-        const data = await response.json();
-        setCoffees(data);
-      }
-    } catch (error) {
-      console.error('Error fetching coffees:', error);
     }
   };
 
@@ -143,17 +105,14 @@ export function UserProvider({ children }) {
     setUser,
     loading,
     error,
-    cafes,
-    setCafes,
-    coffees,
-    setCoffees,
-    fetchCafes,
-    fetchCoffees,
+    cafes: user?.cafes || [],
+    coffees: user?.coffees || [],
     handleLogin,
     handleSignup,
     handleLogout,
     handleGitHubAuth,
     handleClearError,
+    fetchUser,
   };
 
   return (
