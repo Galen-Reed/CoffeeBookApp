@@ -19,10 +19,9 @@ import { Coffee, Github, Eye, EyeOff } from 'lucide-react';
 
 export default function LoginForm({
   onLogin,
-  onSignup,
   onGitHubAuth,
 }) {
-  const { loading, error, setError } = useUser;
+  const { loading, error, handleClearError, handleSignup } = useUser();
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
@@ -30,12 +29,12 @@ export default function LoginForm({
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    if (error) setError('');
+    if (error) handleClearError();
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    isSignUp ? onSignup(formData) : onLogin(formData);
+    isSignUp ? handleSignup(formData) : onLogin(formData);
   };
 
   const togglePasswordVisibility = () => {
@@ -186,7 +185,7 @@ export default function LoginForm({
           type="button"
           onClick={() => {
             setIsSignUp(!isSignUp);
-            setError('');
+            handleClearError();
             setFormData({ username: '', password: '' });
           }}
           sx={{ fontWeight: 'md' }}

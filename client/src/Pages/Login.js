@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useUser } from "../context/UserContext";
 import { CssVarsProvider, useColorScheme } from '@mui/joy/styles';
 import { Box, IconButton } from '@mui/joy';
 import { Sun, Moon } from 'lucide-react';
@@ -34,7 +35,17 @@ function ModeToggle() {
   );
 }
 
-function Login({ onLogin, onSignup, onGitHubAuth, loading = false, error = '', onClearError }) {
+function Login() {
+
+  const {
+    onLogin,
+    onSignup,
+    onGitHubAuth,
+    loading,
+    error,
+    onClearError,
+  } = useUser();
+
   return (
     <CssVarsProvider theme={theme} defaultMode="light" disableNestedContext>
       <Box
