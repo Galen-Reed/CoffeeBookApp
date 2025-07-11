@@ -91,11 +91,10 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = User
         load_instance = True
-        exclude = ("_password_hash", "github_id")
+        exclude = ("_password_hash", "github_id", "notes")
         include_relationships = True
 
-    notes = ma.Nested("NoteSchema", many=True, exclude=("user",))
-    coffees = ma.Nested("CoffeeSchema", many=True, exclude=("users", "notes"))
+    coffees = ma.Nested("CoffeeSchema", many=True, exclude=("users",))
 
 class CafeSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
@@ -103,23 +102,21 @@ class CafeSchema(ma.SQLAlchemyAutoSchema):
         load_instance = True
         include_relationships = True
 
-    coffees = ma.Nested("CoffeeSchema", many=True, exclude=("cafe",))
+    coffees = ma.Nested("CoffeeSchema", many=True, exclude=("cafe", "notes"))
 
 class CoffeeSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Coffee
         load_instance = True
+        exclude = ("users",)
         include_relationships = True
 
     cafe = ma.Nested(CafeSchema, exclude=("coffees",))
     notes = ma.Nested("NoteSchema", many=True, exclude=("coffee",))
-    users = ma.Nested(UserSchema, many=True, exclude=("coffees", "notes"))
 
 class NoteSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Note
         load_instance = True
+        exclude = ("user", "coffee")
         include_relationships = True
-
-    user = ma.Nested(UserSchema, exclude=("notes", "coffees"))
-    coffee = ma.Nested(CoffeeSchema, exclude=("notes", "users"))

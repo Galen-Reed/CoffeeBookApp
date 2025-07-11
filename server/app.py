@@ -48,6 +48,9 @@ class CheckSession(Resource):
         user = User.query.filter(User.id == session.get('user_id')).first()
 
         if user:
+
+            for coffee in user.coffees:
+                coffee.notes = [note for note in coffee.notes if note.user_id == user.id]
             return make_response(user_schema.dump(user), 200)
         else:
             return {"error": "User not signed in"}, 401
