@@ -129,6 +129,7 @@ export function UserProvider({ children }) {
     loading,
     error,
     cafes,
+    setCafes,
     coffees: user?.coffees || [],
     allCoffees,
     setAllCoffees,
@@ -138,6 +139,7 @@ export function UserProvider({ children }) {
     handleGitHubAuth,
     handleClearError,
     fetchUser,
+    fetch
   };
 
   return (

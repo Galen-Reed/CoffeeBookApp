@@ -26,7 +26,7 @@ const formSchema = yup.object().shape({
 
 function CoffeeForm({ cafeId, onCancel, onCoffeeAdded }) {
 
-  const { fetchUser } = useUser();
+  const { setAllCoffees } = useUser();
 
   const formik = useFormik({
     initialValues: {
@@ -51,7 +51,7 @@ function CoffeeForm({ cafeId, onCancel, onCoffeeAdded }) {
           console.log("Response status: ", response.status);
           if (response.ok) {
             response.json().then((newCoffee) => {
-              fetchUser();
+              setAllCoffees((prev) => [...prev, newCoffee]);
               if (onCoffeeAdded) onCoffeeAdded(newCoffee);
               formik.resetForm();
               // Hide the form after successful submission

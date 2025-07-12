@@ -83,12 +83,6 @@ const Cafes = () => {
     }
   };
 
-  const handleCoffeeAdded = (newCoffee) => {
-    if (setCoffees) {
-      setCoffees((prevCoffees) => [...prevCoffees, newCoffee]);
-    }
-  };
-
   return (
     <Box
       sx={{
@@ -245,9 +239,8 @@ const Cafes = () => {
                     <Box sx={{ mb: 2 }}>
                       <CoffeeForm
                         cafeId={cafe.id}
-                        setCoffees={(newCoffee) => updateCafeCoffees(cafe.id, newCoffee)}
                         onCancel={() => toggleAddCoffeeForm(cafe.id)}
-                        onCoffeeAdded={handleCoffeeAdded}
+                        onCoffeeAdded={(newCoffee) => updateCafeCoffees(cafe.id, newCoffee)}
                       />
                     </Box>
                   </Collapse>
