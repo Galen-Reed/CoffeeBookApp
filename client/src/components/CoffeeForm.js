@@ -1,4 +1,5 @@
 import React from "react";
+import { useUser } from "../context/UserContext";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import {
@@ -23,7 +24,10 @@ const formSchema = yup.object().shape({
     .max(500, "Description should be less than 500 characters")
 });
 
-function CoffeeForm({ cafeId, setCoffees, onCancel, onCoffeeAdded }) {
+function CoffeeForm({ cafeId, onCancel, onCoffeeAdded }) {
+
+  const { fetchUser } = useUser();
+
   const formik = useFormik({
     initialValues: {
       name: "",
@@ -47,8 +51,7 @@ function CoffeeForm({ cafeId, setCoffees, onCancel, onCoffeeAdded }) {
           console.log("Response status: ", response.status);
           if (response.ok) {
             response.json().then((newCoffee) => {
-              console.log("New Coffee:", newCoffee);
-              setCoffees(newCoffee);
+              fetchUser();
               if (onCoffeeAdded) onCoffeeAdded(newCoffee);
               formik.resetForm();
               // Hide the form after successful submission

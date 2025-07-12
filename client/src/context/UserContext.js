@@ -10,7 +10,7 @@ export function useUser() {
 export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
   const [allCoffees, setAllCoffees] = useState([]);
-  const [cafes, setCafes] = useState('');
+  const [cafes, setCafes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -131,6 +131,7 @@ export function UserProvider({ children }) {
     cafes,
     coffees: user?.coffees || [],
     allCoffees,
+    setAllCoffees,
     handleLogin,
     handleSignup,
     handleLogout,
