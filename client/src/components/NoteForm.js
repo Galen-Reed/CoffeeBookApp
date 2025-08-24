@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { useUser } from "../context/UserContext";
+import { UserContext } from "../context/UserContext"
 import { useFormik } from "formik";
 import * as yup from "yup";
 import {
@@ -30,7 +30,7 @@ const formSchema = yup.object().shape({
 
 function NoteForm({ onNoteAdded, onCancel, existingNote = null }) {
   const isEditing = Boolean(existingNote);
-  const { cafes, allCoffees } = useUser();
+  const { cafes, allCoffees } = useContext(UserContext);
   const navigate = useNavigate();
   const [selectedCafeId, setSelectedCafeId] = useState(
     existingNote?.coffee?.cafe_id || ""

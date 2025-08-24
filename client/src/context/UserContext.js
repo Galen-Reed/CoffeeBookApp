@@ -7,7 +7,9 @@ export function useUser() {
   return useContext(UserContext);
 }
 
-export function UserProvider({ children }) {
+//This should be changed. Use normal useContext, not exporting useUser()
+
+function UserProvider({ children }) {
   const [user, setUser] = useState(null);
   const [allCoffees, setAllCoffees] = useState([]);
   const [cafes, setCafes] = useState([]);
@@ -117,10 +119,6 @@ export function UserProvider({ children }) {
     navigate("/");
   };
 
-  const handleGitHubAuth = () => {
-    window.location.replace("http://localhost:5555/auth/github");
-  };
-
   const handleClearError = () => setError('');
 
   const value = {
@@ -136,7 +134,6 @@ export function UserProvider({ children }) {
     handleLogin,
     handleSignup,
     handleLogout,
-    handleGitHubAuth,
     handleClearError,
     fetchUser,
     fetch
@@ -148,3 +145,4 @@ export function UserProvider({ children }) {
     </UserContext.Provider>
   );
 }
+export {UserContext, UserProvider};

@@ -18,10 +18,11 @@ import {
 import { Coffee, Github, Eye, EyeOff } from 'lucide-react';
 
 export default function LoginForm() {
-  const { loading, error, handleClearError, handleSignup, handleLogin, handleGitHubAuth } = useUser();
+  const { loading, error, handleClearError, handleSignup, handleLogin} = useUser();
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5555";
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -138,34 +139,27 @@ export default function LoginForm() {
       <Divider sx={{ my: 2 }}>or</Divider>
 
       {/* GitHub OAuth */}
+      <a
+      href={`${API_URL}/auth/github`}
+      style={{ textDecoration: "none", width: "100%" }}
+    >
       <Button
-  variant="outlined"
-  fullWidth
-  size="lg"
-  startDecorator={<Github size={20} />}
-  onClick={(e) => {
-    console.log('GitHub button clicked!');
-    console.log('handleGitHubAuth function:', handleGitHubAuth);
-    console.log('handleGitHubAuth type:', typeof handleGitHubAuth);
-    
-    if (handleGitHubAuth) {
-      handleGitHubAuth(e);
-    } else {
-      console.error('handleGitHubAuth is not defined!');
-    }
-  }}
-  disabled={loading}
-  sx={{
-    borderColor: 'neutral.300',
-    color: 'neutral.700',
-    '&:hover': {
-      borderColor: 'neutral.400',
-      backgroundColor: 'neutral.50',
-    },
-  }}
->
-  Continue with GitHub
-</Button>
+        variant="outlined"
+        fullWidth
+        size="lg"
+        startDecorator={<Github size={20} />}
+        sx={{
+          borderColor: "neutral.300",
+          color: "neutral.700",
+          "&:hover": {
+            borderColor: "neutral.400",
+            backgroundColor: "neutral.50",
+          },
+        }}
+      >
+        Continue with GitHub
+      </Button>
+    </a>
 
       {/* Toggle */}
       <Typography

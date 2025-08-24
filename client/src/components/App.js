@@ -16,7 +16,6 @@ function InnerApp() {
     error, 
     handleLogin, 
     handleSignup, 
-    handleGitHubAuth, 
     handleClearError, 
     handleLogout
   } = useUser();
@@ -28,7 +27,6 @@ function InnerApp() {
       <Login
         onLogin={handleLogin}
         onSignup={handleSignup}
-        onGitHubAuth={handleGitHubAuth}
         loading={loading}
         error={error}
         onClearError={handleClearError}
